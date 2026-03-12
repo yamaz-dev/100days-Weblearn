@@ -77,7 +77,6 @@ function startQuiz() {
 	currentQuestionIndex = 0;
 	score = 0;
 	scoreSpan.textContent = score;
-	updateScore();
 	showQuestion();
 }
 
@@ -101,16 +100,46 @@ function showQuestion() {
 function selectAnswer(event) {
 	if (answerDisabled) return;
 	answerDisabled = true;
-	const selectedButton = e.target;
-	const correct = selectedButton.dataset.correct === "true";
+	const selectedButton = event.target;
+	const iscorrect = selectedButton.dataset.correct === "true";
+	Array.from(answersContainer.children).forEach((button) => {
+		if (button.dataset.correct === "true") {
+			button.classList.add("correct");
+		} else if (button === selectedButton) {
+			button.classList.add("incorrect");
+		}
+	});
+
+	if (iscorrect) {
+		score++;
+		scoreSpan.textContent = score;
+	}
+
+	setTimeout(() => {
+		currentQuestionIndex++;
+		if (currentQuestionIndex < quizQuestions.length) {
+			showQuestion();
+		} else {
+			showResult();
+		}
+	}, 1000);
+}
+
+function showResult() {
+	quizScreen.classList.remove("active");
+	resultScreen.classList.add("active");
+	finalScoreSpan.textContent = score;
+	const percentage = (score / quizQuestions.length) * 100;
+	if (percentage >= 80) {
+		resultMessage.textContent = "Excellent work!";
+	} else if (percentage >= 50) {
+		resultMessage.textContent = "Good job!";
+	} else {
+		resultMessage.textContent = "Better luck next time!";
+	}
 }
 
 function restartQuiz() {
-	startScreen.classList.remove("active");
-	quizScreen.classList.add("active");
-	currentQuestionIndex = 0;
-	score = 0;
-	scoreSpan.textContent = score;
-	updateScore();
-	showQuestion();
+	resultScreen.classList.remove("active");
+	startQuiz();
 }
